@@ -1,75 +1,104 @@
 // SPDX-License-Identifier: MIT
-pragma solidity ^0.8.13;
+pragma solidity ^0.8.0;
 
 contract Lottery {
-    uint public drawTime; // Time when the draw happens
-    uint public ticketPrice = 0.01 ether; // Price per ticket
-    uint public pointsPerTicket = 10; // Points awarded per ticket purchase
-    uint public luckyNumber; // The lucky number to be set at draw time
-    bool public drawHappened = false;
-
     address public owner;
-    mapping(address => uint) public playerNumbers; // Player's chosen number
-    mapping(uint => address[]) public numberToPlayers; // Mapping of number to players who chose it
-    uint public totalPool; // Total ETH pool
+    uint public drawTime;
+    uint public bettingEndTime;
+    uint public constant POINTS_PER_ETH = 1000; 
+    uint public constant NUMBER_RANGE = 50; // Numbers from 1 to 50
+    uint private luckyNumber;
+    bool public drawOccurred = false;
 
-    event TicketPurchased(address indexed player, uint number, uint points);
-    event DrawHappened(uint luckyNumber, uint totalWinners, uint prizePerWinner);
-
-    constructor(uint _drawTimeFromNow) {
-        owner = msg.sender;
-        drawTime = block.timestamp + _drawTimeFromNow;
+    struct Bet {
+        uint number;
+        uint points;
     }
 
+    mapping(address => Bet[]) private bets;
+    mapping(uint => uint) public totalBetsOnNumber; // Total points bet on each number
+    uint public totalPointsInPool;
+
+    event BetPlaced(address indexed bettor, uint number, uint points);
+    event Draw(uint luckyNumber);
+    event WinningsPaid(address winner, uint amount);
+
     modifier onlyOwner() {
-        require(msg.sender == owner, "Only the owner can call this function.");
+        require(msg.sender == owner, "Only the owner can perform this action.");
         _;
     }
 
-    function buyTicket(uint _chosenNumber) external payable {
-        require(msg.value == ticketPrice, "Incorrect amount of ETH sent.");
-        require(block.timestamp < drawTime, "The draw has already happened.");
-        require(_chosenNumber > 0, "Invalid number chosen.");
-
-        totalPool += msg.value;
-        playerNumbers[msg.sender] = _chosenNumber;
-        numberToPlayers[_chosenNumber].push(msg.sender);
-
-        emit TicketPurchased(msg.sender, _chosenNumber, pointsPerTicket);
+    modifier beforeBettingEnds() {
+        require(block.timestamp <= bettingEndTime, "Betting phase has ended.");
+        _;
     }
 
-    function conductDraw(uint _luckyNumber) external onlyOwner {
-        require(block.timestamp >= drawTime, "The draw time has not yet arrived.");
-        require(!drawHappened, "Draw has already been conducted.");
+    modifier afterBettingEnds() {
+        require(block.timestamp > bettingEndTime, "Betting phase is still active.");
+        _;
+    }
 
-        luckyNumber = _luckyNumber;
-        drawHappened = true;
+    constructor(uint _bettingDurationMinutes) {
+        owner = msg.sender;
+        bettingEndTime = block.timestamp + (_bettingDurationMinutes * 1 minutes);
+    }
 
-        address[] memory winners = numberToPlayers[luckyNumber];
-        uint totalWinners = winners.length;
-        uint prizePerWinner = totalWinners > 0 ? totalPool / totalWinners : 0;
+    function placeBet(uint number) external payable beforeBettingEnds {
+        require(number >= 1 && number <= NUMBER_RANGE, "Number out of range.");
+        uint points = msg.value * POINTS_PER_ETH;
+        bets[msg.sender].push(Bet({number: number, points: points}));
+        totalBetsOnNumber[number] += points;
+        totalPointsInPool += points;
 
-        for(uint i = 0; i < totalWinners; i++) {
-            payable(winners[i]).transfer(prizePerWinner);
+        emit BetPlaced(msg.sender, number, points);
+    }
+
+    function performDraw() external onlyOwner afterBettingEnds {
+        require(!drawOccurred, "Draw has already occurred.");
+        luckyNumber = _generateRandomNumber() + 1; // Ensures number is within 1-50
+        drawOccurred = true;
+
+        uint totalWinningPoints = totalBetsOnNumber[luckyNumber];
+        if (totalWinningPoints > 0) {
+            uint prizePool = address(this).balance;
+            // Iterate over all bets to find winners and distribute winnings
+            for (uint i = 1; i <= NUMBER_RANGE; i++) {
+                if (i == luckyNumber) {
+                    address[] memory winners = _getWinners(i, totalWinningPoints, prizePool);
+                    for (uint j = 0; j < winners.length; j++) {
+                        emit WinningsPaid(winners[j], bets[winners[j]][i].points);
+                    }
+                }
+            }
         }
 
-        // Emit an event with the draw results
-        emit DrawHappened(luckyNumber, totalWinners, prizePerWinner);
-
-        // Reset the lottery for the next round (not implemented here)
-        // Considerations for resetting include handling the remaining ETH (if any), resetting variables, or self-destructing the contract.
+        emit Draw(luckyNumber);
     }
 
-    // Utility function to check the balance of the contract
-    function getContractBalance() public view returns (uint) {
-        return address(this).balance;
+    // Simplified random number generation for demonstration. Use Chainlink VRF in production.
+    function _generateRandomNumber() private view returns (uint) {
+        return uint(keccak256(abi.encodePacked(block.difficulty, block.timestamp))) % NUMBER_RANGE;
     }
 
-    // Utility function to check the draw time remaining
-    function timeUntilDraw() public view returns (uint) {
-        if(block.timestamp >= drawTime) {
-            return 0;
+    function _getWinners(uint _number, uint totalWinningPoints, uint prizePool) private view returns (address[] memory) {
+        uint winnerCount = 0;
+        address[] memory tempWinners = new address[](totalWinningPoints); // Oversized array, will trim later
+
+        // Placeholder loop. In a real contract, you would calculate and send winnings here.
+        for (uint i = 0; i < tempWinners.length; i++) {
+            // logic to populate winners
         }
-        return drawTime - block.timestamp;
+
+        address[] memory winners = new address[](winnerCount);
+        for (uint i = 0; i < winnerCount; i++) {
+            winners[i] = tempWinners[i];
+        }
+
+        return winners;
+    }
+
+    function getLuckyNumber() public view returns (uint) {
+        require(drawOccurred, "Draw has not occurred yet.");
+        return luckyNumber;
     }
 }
