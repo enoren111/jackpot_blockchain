@@ -84,7 +84,7 @@ contract Lottery {
         uint winnerCount = 0;
         address[] memory tempWinners = new address[](totalWinningPoints); // Oversized array, will trim later
 
-        // Placeholder loop. In a real contract, you would calculate and send winnings here.
+        // Placeholder loop. calculate and send winnings here.
         for (uint i = 0; i < tempWinners.length; i++) {
             // logic to populate winners
         }
