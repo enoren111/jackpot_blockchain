@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -74,7 +74,9 @@ const PlayButton = styled.button`
 const GamePage = () => {
   const [selectedNumber, setSelectedNumber] = useState(null);
   const [timer, setTimer] = useState(10);
-  const [luckyNumber, setLuckyNumber] = useState(() => generateLuckyNumber());;
+  const [waitTimer, setWaitTimer] = useState(10);
+  const [isWaitingForNextRound, setIsWaitingForNextRound] = useState(true);
+  const [luckyNumber, setLuckyNumber] = useState('TBA');;
   const [jackpotAmount, setJackpotAmount] = useState('10,342 ETH');
 
   // Placeholder functions for game logic (to be implemented)
@@ -84,25 +86,41 @@ const GamePage = () => {
 
   const handlePlayClick = () => {
     // Game start logic here
+    setLuckyNumber(generateLuckyNumber());
   };
 
-  function generateLuckyNumber(){
+  function generateLuckyNumber() {
     return Math.floor(Math.random() * 25) + 1;
   }
 
   useEffect(() => {
-    if (timer === 0) {
-      setLuckyNumber(generateLuckyNumber());
-      setTimer(10); 
-      return;
+    let timerId;
+    if (isWaitingForNextRound) {
+      if (waitTimer === 0) {
+        setLuckyNumber("TBA");
+        setIsWaitingForNextRound(false);
+        setTimer(10);
+        setWaitTimer(10);
+      } else {
+        timerId = setTimeout(() => setWaitTimer(waitTimer - 1), 1000);
+      }
+    }
+    else {
+      if (timer === 0) {
+        setLuckyNumber(generateLuckyNumber());
+        setTimer(10);
+        setIsWaitingForNextRound(true);
+        return;
+      }
+
+      const timerId = setTimeout(() => {
+        setTimer(timer - 1);
+      }, 1000);
+
+      return () => clearTimeout(timerId);
     }
 
-    const timerId = setTimeout(() => {
-      setTimer(timer - 1);
-    }, 1000);
-
-    return () => clearTimeout(timerId);
-  }, [timer]);
+  }, [timer,waitTimer,isWaitingForNextRound ]);
 
   return (
     <>
@@ -113,7 +131,11 @@ const GamePage = () => {
       </Navbar>
       <GameContainer>
         <JackpotDisplay>Jackpot: {jackpotAmount}</JackpotDisplay>
-        <TimerDisplay>Time Remaining: {timer}</TimerDisplay>
+        {isWaitingForNextRound ? (
+          <TimerDisplay>Time for Next Round: {waitTimer}</TimerDisplay>
+        ) : (
+          <TimerDisplay>Time Remaining: {timer}</TimerDisplay>
+        )}
         <NumberDisplay>The lucky number is: {luckyNumber}</NumberDisplay>
         <NumberTable>
           {Array.from({ length: 25 }, (_, i) => i + 1).map((number) => (
