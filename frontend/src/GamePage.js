@@ -58,9 +58,10 @@ const NumberCell = styled.div`
   border: 1px solid #333;
   padding: 20px;
   cursor: pointer;
-  &:hover {
-    background-color: #c8e6c9;
-  }
+  // &:hover {
+  //   background-color: #c8e6c9;
+  // }
+  background-color: ${props => props.isSelected ? '#c8e6c9' : '#fff'};
 `;
 
 const PlayButton = styled.button`
@@ -86,7 +87,7 @@ const GamePage = () => {
 
   const handlePlayClick = () => {
     // Game start logic here
-    setLuckyNumber(generateLuckyNumber());
+    setSelectedNumber(generateLuckyNumber());
   };
 
   function generateLuckyNumber() {
@@ -139,13 +140,13 @@ const GamePage = () => {
         <NumberDisplay>The lucky number is: {luckyNumber}</NumberDisplay>
         <NumberTable>
           {Array.from({ length: 25 }, (_, i) => i + 1).map((number) => (
-            <NumberCell key={number} onClick={() => handleNumberClick(number)}>
+            <NumberCell key={number} isSelected = {selectedNumber == number} onClick={() => handleNumberClick(number)}>
               {number}
             </NumberCell>
           ))}
         </NumberTable>
-        <PlayButton onClick={handlePlayClick}>Play</PlayButton>
-        {/* {luckyNumber && <div>Lucky Number: {luckyNumber}</div>} */}
+        <PlayButton onClick={handlePlayClick}>Place your bet</PlayButton>
+        {luckyNumber && <div>Lucky Number: {luckyNumber}</div>}
       </GameContainer>
     </>
   );
