@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState,useEffect } from 'react';
 import styled from 'styled-components';
 import { Link } from 'react-router-dom';
 
@@ -39,6 +39,11 @@ const TimerDisplay = styled.div`
   margin-bottom: 20px;
 `;
 
+const NumberDisplay = styled.div`
+  font-size: 24px;
+  margin-bottom: 20px;
+`;
+
 const NumberTable = styled.div`
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -68,8 +73,8 @@ const PlayButton = styled.button`
 // GamePage component
 const GamePage = () => {
   const [selectedNumber, setSelectedNumber] = useState(null);
-  const [timer, setTimer] = useState('1:00');
-  const [luckyNumber, setLuckyNumber] = useState(null);
+  const [timer, setTimer] = useState(10);
+  const [luckyNumber, setLuckyNumber] = useState(() => generateLuckyNumber());;
   const [jackpotAmount, setJackpotAmount] = useState('10,342 ETH');
 
   // Placeholder functions for game logic (to be implemented)
@@ -81,6 +86,24 @@ const GamePage = () => {
     // Game start logic here
   };
 
+  function generateLuckyNumber(){
+    return Math.floor(Math.random() * 25) + 1;
+  }
+
+  useEffect(() => {
+    if (timer === 0) {
+      setLuckyNumber(generateLuckyNumber());
+      setTimer(10); 
+      return;
+    }
+
+    const timerId = setTimeout(() => {
+      setTimer(timer - 1);
+    }, 1000);
+
+    return () => clearTimeout(timerId);
+  }, [timer]);
+
   return (
     <>
       <Navbar>
@@ -91,6 +114,7 @@ const GamePage = () => {
       <GameContainer>
         <JackpotDisplay>Jackpot: {jackpotAmount}</JackpotDisplay>
         <TimerDisplay>Time Remaining: {timer}</TimerDisplay>
+        <NumberDisplay>The lucky number is: {luckyNumber}</NumberDisplay>
         <NumberTable>
           {Array.from({ length: 25 }, (_, i) => i + 1).map((number) => (
             <NumberCell key={number} onClick={() => handleNumberClick(number)}>
@@ -99,7 +123,7 @@ const GamePage = () => {
           ))}
         </NumberTable>
         <PlayButton onClick={handlePlayClick}>Play</PlayButton>
-        {luckyNumber && <div>Lucky Number: {luckyNumber}</div>}
+        {/* {luckyNumber && <div>Lucky Number: {luckyNumber}</div>} */}
       </GameContainer>
     </>
   );
