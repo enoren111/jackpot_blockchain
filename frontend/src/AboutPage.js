@@ -79,16 +79,19 @@ const AboutPage = () => {
       <SectionHeader>About us:</SectionHeader>
       <ContentGrid>
         <ContentBlock>
+        <a href="https://docs.google.com/document/d/1djhGp9Vnl9voOFDZ27Vfac8OKadhkqNy5J8_vKybQKA/edit?usp=sharing" target="_blank" rel="noopener noreferrer">
           <ImageContainer>
             <Image src="/whitepaper.jpeg" alt="White Paper" />
           </ImageContainer>
           <Label>White Paper</Label>
+          </a>
         </ContentBlock>
         <ContentBlock>
+          <Link to="/tokenomics">
           <ImageContainer>
             <Image src="/tokenomics.jpg" alt="Tokenomics" />
           </ImageContainer>
-          <Label>Tokenomics</Label>
+          <Label>Tokenomics</Label></Link>
         </ContentBlock>
         <ContentBlock>
           <ImageContainer>
