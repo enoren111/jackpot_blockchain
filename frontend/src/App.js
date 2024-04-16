@@ -4,6 +4,7 @@ import LandingPage from './LandingPage';
 import AboutPage from './AboutPage';
 import AccountPage from './AccountPage';
 import GamePage from './GamePage';
+import Tokenomics from './Tokenomics';
 // Import other components if necessary
 
 function App() {
@@ -34,6 +35,7 @@ function App() {
           <Route path="/about" element={<AboutPage />} />
           <Route path="/account" element={<AccountPage userAddress={userAddress} />} />
           <Route path="/game" element={<GamePage />} />
+          <Route path="/tokenomics" element={<Tokenomics />} />
           {/* Define other routes here */}
         </Routes>
       </div>
