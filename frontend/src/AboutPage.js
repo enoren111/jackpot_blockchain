@@ -1,6 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
 import Navbar from './components/Navbar';
+import { Link } from 'react-router-dom';
 
 // Define your styled components here
 
