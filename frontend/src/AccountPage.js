@@ -1,27 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styled from 'styled-components';
 import Web3 from 'web3';
-import { Link } from 'react-router-dom';
-
-const Navbar = styled.nav`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #f8f8f8;
-  padding: 10px 50px;
-`;
-
-const NavLink = styled(Link)`
-  color: #333;
-  font-weight: bold;
-  padding: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  &:hover {
-    background-color: #ddd;
-    border-radius: 4px;
-  }
-`;
+import Navbar from './components/Navbar';
 
 const SectionHeader = styled.h2`
   text-align: left;
@@ -81,11 +61,7 @@ const AccountPage = ({ userAddress }) => {
 
   return (
     <>
-      <Navbar>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/game">Game</NavLink>
-        <NavLink to="/account">Account</NavLink>
-      </Navbar>
+      <Navbar />
       <SectionHeader>Account</SectionHeader>
       <ContentGrid>
         <ProfilePictureContainer>

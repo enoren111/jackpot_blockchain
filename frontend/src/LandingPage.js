@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components';
-import Web3 from 'web3';
-import MetaMaskLogo from './logo.svg';
+
+import MetaMaskLogo from './assets/images/logo.svg';
 
 const PageContainer = styled.div`
   display: flex;
@@ -39,7 +39,7 @@ const SignUpButton = styled.button`
 const LandingPage = ({ onWalletConnect }) => {
   return (
     <PageContainer>
-      <Title>JACKPOT</Title>
+      <Title>Welcome to the Jackpot</Title>
       <Logo src={MetaMaskLogo} alt="MetaMask Logo" />
       <SignUpButton onClick={onWalletConnect}>Connect Wallet</SignUpButton>
     </PageContainer>

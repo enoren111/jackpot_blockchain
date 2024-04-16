@@ -1,27 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
-import { Link } from 'react-router-dom';
+import Navbar from './components/Navbar';
 
 // Define your styled components here
-const Navbar = styled.nav`
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  background-color: #f8f8f8;
-  padding: 10px 50px;
-`;
-
-const NavLink = styled(Link)`
-  color: #333;
-  font-weight: bold;
-  padding: 10px;
-  text-decoration: none;
-  cursor: pointer;
-  &:hover {
-    background-color: #ddd;
-    border-radius: 4px;
-  }
-`;
 
 const SectionHeader = styled.h2`
   text-align: left;
@@ -71,11 +52,7 @@ const Image = styled.img`
 const AboutPage = () => {
   return (
     <>
-      <Navbar>
-        <NavLink to="/">Home</NavLink>
-        <NavLink to="/game">Game</NavLink>
-        <NavLink to="/account">Account</NavLink>
-      </Navbar>
+      <Navbar />
       <SectionHeader>About us:</SectionHeader>
       <ContentGrid>
         <ContentBlock>
